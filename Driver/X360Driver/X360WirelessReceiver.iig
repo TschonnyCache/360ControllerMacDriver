@@ -1,0 +1,44 @@
+//
+//  X360WirelessReceiver.iig
+//  X360Driver
+//
+//  Matches the Xbox 360 Wireless Receiver (an IOUSBHostDevice), owns its four
+//  controller slots and publishes one X360WirelessGamepad per connected pad.
+//
+
+#ifndef X360WirelessReceiver_h
+#define X360WirelessReceiver_h
+
+#include <Availability.h>
+#include <DriverKit/IOService.iig>
+#include <USBDriverKit/IOUSBHostPipe.iig>
+
+class X360WirelessGamepad;
+
+class X360WirelessReceiver : public IOService
+{
+public:
+    virtual bool init() override;
+    virtual void free() override;
+
+    virtual kern_return_t Start(IOService *provider) override;
+    virtual kern_return_t Stop(IOService *provider) override;
+
+    /// Sends a 12-byte receiver command to `slot`. Safe to call from any queue.
+    kern_return_t SendCommand(uint32_t slot, const uint8_t *bytes, uint32_t length) LOCALONLY;
+
+    /// Called by a gamepad from its Stop so the receiver drops its reference.
+    void GamepadDidStop(uint32_t slot, X360WirelessGamepad *gamepad) LOCALONLY;
+
+    /// USB location ID of the receiver (used to derive per-pad location IDs).
+    uint32_t GetLocationID() LOCALONLY;
+
+protected:
+    /// Completion for the per-slot interrupt IN reads. The action reference holds the slot index.
+    virtual void ReadComplete(OSAction *action,
+                              IOReturn status,
+                              uint32_t actualByteCount,
+                              uint64_t completionTimestamp) TYPE(IOUSBHostPipe::CompleteAsyncIO);
+};
+
+#endif /* X360WirelessReceiver_h */

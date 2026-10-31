@@ -1,0 +1,500 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		73C6F815D74C78DE085B9BEC /* X360WirelessReceiver.iig in Sources */ = {isa = PBXBuildFile; fileRef = 8CAAAEA31C55A75EA97706AC /* X360WirelessReceiver.iig */; };
+		1B95F33FDA40A8A7D4E9669B /* X360WirelessGamepad.iig in Sources */ = {isa = PBXBuildFile; fileRef = 9416641AEB114BFA2C541EE7 /* X360WirelessGamepad.iig */; };
+		90D3B70C558F7EBE72378F91 /* X360WirelessReceiver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8741C36A5D8E79D2FE3F50C3 /* X360WirelessReceiver.cpp */; };
+		DE85226ABCACE9BBB8EA6E85 /* X360WirelessGamepad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1064FC35377D1F0A29896E6 /* X360WirelessGamepad.cpp */; };
+		74E8DC2F1B193F956BB6F72D /* X360Protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = E7BFBE43422B74C26728634A /* X360Protocol.c */; };
+		ACC8344C72F15997E69A965A /* X360DriverManagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85027D31833E94EA78AFAAF3 /* X360DriverManagerApp.swift */; };
+		E733DA00F52B7FE375AE664A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2319FB8EBC932694CB0194BC /* ContentView.swift */; };
+		12EAC4CA33DD0EAE8EFE83C0 /* DriverActivator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53738AC1857BC37F7C21C39C /* DriverActivator.swift */; };
+		CC6F5C68B4C8255A6F9C958C /* DeviceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E1BA74611D98C0862CA1A9 /* DeviceMonitor.swift */; };
+		1483F6AF8D9F8AF1C38B1AFC /* X360Driver.dext in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 56E1BA7D26CFB79560C32A70 /* X360Driver.dext */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2A1F3EB518F6448A578C8183 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9F9A4D2EAC385D8D4C84F5A1;
+			remoteInfo = X360Driver;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2445746D61D14C070BA4F7AF /* Embed System Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+				1483F6AF8D9F8AF1C38B1AFC /* X360Driver.dext in Embed System Extensions */,
+			);
+			name = "Embed System Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8CAAAEA31C55A75EA97706AC /* X360WirelessReceiver.iig */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.iig; path = X360WirelessReceiver.iig; sourceTree = "<group>"; };
+		8741C36A5D8E79D2FE3F50C3 /* X360WirelessReceiver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = X360WirelessReceiver.cpp; sourceTree = "<group>"; };
+		9416641AEB114BFA2C541EE7 /* X360WirelessGamepad.iig */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.iig; path = X360WirelessGamepad.iig; sourceTree = "<group>"; };
+		E1064FC35377D1F0A29896E6 /* X360WirelessGamepad.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = X360WirelessGamepad.cpp; sourceTree = "<group>"; };
+		7C30FB8FD18F7C2B3145D6C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2E4D13AC3779099317F5642F /* X360Driver.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = X360Driver.entitlements; sourceTree = "<group>"; };
+		E7BFBE43422B74C26728634A /* X360Protocol.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = X360Protocol.c; sourceTree = "<group>"; };
+		AEA5DD5F24DDE5FEB3EBE11A /* X360Protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = X360Protocol.h; path = include/X360Protocol.h; sourceTree = "<group>"; };
+		85027D31833E94EA78AFAAF3 /* X360DriverManagerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = X360DriverManagerApp.swift; sourceTree = "<group>"; };
+		2319FB8EBC932694CB0194BC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		53738AC1857BC37F7C21C39C /* DriverActivator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverActivator.swift; sourceTree = "<group>"; };
+		20E1BA74611D98C0862CA1A9 /* DeviceMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMonitor.swift; sourceTree = "<group>"; };
+		7299068FE7CC3B4951ED7BFE /* X360DriverManager.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = X360DriverManager.entitlements; sourceTree = "<group>"; };
+		56E1BA7D26CFB79560C32A70 /* X360Driver.dext */ = {isa = PBXFileReference; explicitFileType = "wrapper.driver-extension"; includeInIndex = 0; path = X360Driver.dext; sourceTree = BUILT_PRODUCTS_DIR; };
+		588CB34AE98642743F765983 /* X360DriverManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = X360DriverManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B6BEDDEE71AF725A9ED04BEE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE1D64BE145FD92B4A892715 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		956934E60556FDCE0710C957 = {
+			isa = PBXGroup;
+			children = (
+				8FF555B3193307AC42CC72F5 /* X360Driver */,
+				56A1B566039BA486F2D6DC66 /* X360DriverManager */,
+				954F45AD71969CBF91F20971 /* Core */,
+				CC0F68FE2D81F9614883F277 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC0F68FE2D81F9614883F277 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				56E1BA7D26CFB79560C32A70 /* X360Driver.dext */,
+				588CB34AE98642743F765983 /* X360DriverManager.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8FF555B3193307AC42CC72F5 /* X360Driver */ = {
+			isa = PBXGroup;
+			children = (
+				8CAAAEA31C55A75EA97706AC /* X360WirelessReceiver.iig */,
+				8741C36A5D8E79D2FE3F50C3 /* X360WirelessReceiver.cpp */,
+				9416641AEB114BFA2C541EE7 /* X360WirelessGamepad.iig */,
+				E1064FC35377D1F0A29896E6 /* X360WirelessGamepad.cpp */,
+				7C30FB8FD18F7C2B3145D6C9 /* Info.plist */,
+				2E4D13AC3779099317F5642F /* X360Driver.entitlements */,
+			);
+			path = X360Driver;
+			sourceTree = "<group>";
+		};
+		954F45AD71969CBF91F20971 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				E7BFBE43422B74C26728634A /* X360Protocol.c */,
+				AEA5DD5F24DDE5FEB3EBE11A /* X360Protocol.h */,
+			);
+			name = Core;
+			path = ../Core;
+			sourceTree = "<group>";
+		};
+		56A1B566039BA486F2D6DC66 /* X360DriverManager */ = {
+			isa = PBXGroup;
+			children = (
+				85027D31833E94EA78AFAAF3 /* X360DriverManagerApp.swift */,
+				2319FB8EBC932694CB0194BC /* ContentView.swift */,
+				53738AC1857BC37F7C21C39C /* DriverActivator.swift */,
+				20E1BA74611D98C0862CA1A9 /* DeviceMonitor.swift */,
+				7299068FE7CC3B4951ED7BFE /* X360DriverManager.entitlements */,
+			);
+			path = X360DriverManager;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		EB79FB36CFCE6239D1FC0ACE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		9F9A4D2EAC385D8D4C84F5A1 /* X360Driver */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 32490B9D64F0F7D6F60B7E3A /* Build configuration list for PBXNativeTarget "X360Driver" */;
+			buildPhases = (
+				EB79FB36CFCE6239D1FC0ACE /* Headers */,
+				8E1A28904B4AE20BFB2CB63B /* Sources */,
+				B6BEDDEE71AF725A9ED04BEE /* Frameworks */,
+				34A9EC53E2E21D2F0C7612CB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = X360Driver;
+			productName = X360Driver;
+			productReference = 56E1BA7D26CFB79560C32A70 /* X360Driver.dext */;
+			productType = "com.apple.product-type.driver-extension";
+		};
+		3CF92D32E5C5A22CDC3CB9A1 /* X360DriverManager */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4BD0BFBDE0D101169D09F7D3 /* Build configuration list for PBXNativeTarget "X360DriverManager" */;
+			buildPhases = (
+				B4B8B74A74144EC8CFE7162A /* Sources */,
+				CE1D64BE145FD92B4A892715 /* Frameworks */,
+				EAD38B1392FE409D5A1DE8A5 /* Resources */,
+				2445746D61D14C070BA4F7AF /* Embed System Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2A9B53C8ACF5422F497C3EA5 /* PBXTargetDependency */,
+			);
+			name = X360DriverManager;
+			productName = X360DriverManager;
+			productReference = 588CB34AE98642743F765983 /* X360DriverManager.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2720;
+				TargetAttributes = {
+					9F9A4D2EAC385D8D4C84F5A1 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+					3CF92D32E5C5A22CDC3CB9A1 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+				};
+			};
+			buildConfigurationList = 24DF83E70DFC898B71CD8E2E /* Build configuration list for PBXProject "Xbox360Driver" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 956934E60556FDCE0710C957;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CC0F68FE2D81F9614883F277 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3CF92D32E5C5A22CDC3CB9A1 /* X360DriverManager */,
+				9F9A4D2EAC385D8D4C84F5A1 /* X360Driver */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		34A9EC53E2E21D2F0C7612CB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAD38B1392FE409D5A1DE8A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8E1A28904B4AE20BFB2CB63B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				73C6F815D74C78DE085B9BEC /* X360WirelessReceiver.iig in Sources */,
+				1B95F33FDA40A8A7D4E9669B /* X360WirelessGamepad.iig in Sources */,
+				90D3B70C558F7EBE72378F91 /* X360WirelessReceiver.cpp in Sources */,
+				DE85226ABCACE9BBB8EA6E85 /* X360WirelessGamepad.cpp in Sources */,
+				74E8DC2F1B193F956BB6F72D /* X360Protocol.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B4B8B74A74144EC8CFE7162A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ACC8344C72F15997E69A965A /* X360DriverManagerApp.swift in Sources */,
+				E733DA00F52B7FE375AE664A /* ContentView.swift in Sources */,
+				12EAC4CA33DD0EAE8EFE83C0 /* DriverActivator.swift in Sources */,
+				CC6F5C68B4C8255A6F9C958C /* DeviceMonitor.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2A9B53C8ACF5422F497C3EA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9F9A4D2EAC385D8D4C84F5A1 /* X360Driver */;
+			targetProxy = 2A1F3EB518F6448A578C8183 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		21DF9515E57564E494EDB0F6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		37662912BED01811DF2952D7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		85551DC1274A4FD38650A5C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = X360Driver/X360Driver.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				DRIVERKIT_DEPLOYMENT_TARGET = 23.0;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../Core/include",
+				);
+				INFOPLIST_FILE = X360Driver/Info.plist;
+				MARKETING_VERSION = 0.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					"DriverKit",
+					"-framework",
+					"USBDriverKit",
+					"-framework",
+					"HIDDriverKit",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jonaskreusch.X360DriverManager.X360Driver;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = driverkit;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		651F885B53DCDA29B9422CB6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = X360Driver/X360Driver.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				DRIVERKIT_DEPLOYMENT_TARGET = 23.0;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../Core/include",
+				);
+				INFOPLIST_FILE = X360Driver/Info.plist;
+				MARKETING_VERSION = 0.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					"DriverKit",
+					"-framework",
+					"USBDriverKit",
+					"-framework",
+					"HIDDriverKit",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jonaskreusch.X360DriverManager.X360Driver;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = driverkit;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		CCCF20B535F81D12EDF4AAF7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = X360DriverManager/X360DriverManager.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Xbox 360 Driver";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jonaskreusch.X360DriverManager;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		801ECA245589F8B937647DE4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = X360DriverManager/X360DriverManager.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Xbox 360 Driver";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jonaskreusch.X360DriverManager;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		24DF83E70DFC898B71CD8E2E /* Build configuration list for PBXProject "Xbox360Driver" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21DF9515E57564E494EDB0F6 /* Debug */,
+				37662912BED01811DF2952D7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		32490B9D64F0F7D6F60B7E3A /* Build configuration list for PBXNativeTarget "X360Driver" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85551DC1274A4FD38650A5C3 /* Debug */,
+				651F885B53DCDA29B9422CB6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4BD0BFBDE0D101169D09F7D3 /* Build configuration list for PBXNativeTarget "X360DriverManager" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCCF20B535F81D12EDF4AAF7 /* Debug */,
+				801ECA245589F8B937647DE4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+}

@@ -1,0 +1,48 @@
+//
+//  X360WirelessGamepad.iig
+//  X360Driver
+//
+//  A HID gamepad representing one controller connected to the receiver. It
+//  looks exactly like the pads published by the old 360Controller kext
+//  (VID 045E, PID 028E, same report descriptor/format), so existing SDL,
+//  Steam and game mappings keep working.
+//
+
+#ifndef X360WirelessGamepad_h
+#define X360WirelessGamepad_h
+
+#include <Availability.h>
+#include <DriverKit/IOService.iig>
+#include <HIDDriverKit/IOUserHIDDevice.iig>
+
+struct X360PadState;
+
+class X360WirelessGamepad : public IOUserHIDDevice
+{
+public:
+    virtual bool init() override;
+    virtual void free() override;
+
+    virtual kern_return_t Start(IOService *provider) override;
+    virtual kern_return_t Stop(IOService *provider) override;
+
+    virtual bool handleStart(IOService *provider) override;
+    virtual OSDictionary *newDeviceDescription() override;
+    virtual OSData *newReportDescriptor() override;
+
+    /// Output reports from games/tools: rumble, LED, power off (360Controller format).
+    virtual kern_return_t setReport(IOMemoryDescriptor *report,
+                                    IOHIDReportType reportType,
+                                    IOOptionBits options,
+                                    uint32_t completionTimeout,
+                                    OSAction *action) override;
+
+    /// Delivers new controller state to the HID system. Called by the receiver;
+    /// `timestamp` is the USB completion time (mach absolute time units).
+    void PostPadState(const struct X360PadState *state, uint64_t timestamp) LOCALONLY;
+
+    /// Publishes the battery level as the "BatteryLevel" property (like 360Controller).
+    void SetBatteryLevel(uint8_t level) LOCALONLY;
+};
+
+#endif /* X360WirelessGamepad_h */
