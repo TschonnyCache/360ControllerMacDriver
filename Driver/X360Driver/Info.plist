@@ -44,12 +44,14 @@
 				<integer>657</integer>
 				<integer>681</integer>
 			</array>
+			<key>X360IdlePowerOffMinutes</key>
+			<integer>15</integer>
 			<key>X360GamepadSlot0</key>
 			<dict>
 				<key>IOClass</key>
 				<string>AppleUserHIDDevice</string>
 				<key>IOUserClass</key>
-				<string>X360WirelessGamepad</string>
+				<string>X360Gamepad</string>
 				<key>X360Slot</key>
 				<integer>0</integer>
 			</dict>
@@ -58,7 +60,7 @@
 				<key>IOClass</key>
 				<string>AppleUserHIDDevice</string>
 				<key>IOUserClass</key>
-				<string>X360WirelessGamepad</string>
+				<string>X360Gamepad</string>
 				<key>X360Slot</key>
 				<integer>1</integer>
 			</dict>
@@ -67,7 +69,7 @@
 				<key>IOClass</key>
 				<string>AppleUserHIDDevice</string>
 				<key>IOUserClass</key>
-				<string>X360WirelessGamepad</string>
+				<string>X360Gamepad</string>
 				<key>X360Slot</key>
 				<integer>2</integer>
 			</dict>
@@ -76,9 +78,40 @@
 				<key>IOClass</key>
 				<string>AppleUserHIDDevice</string>
 				<key>IOUserClass</key>
-				<string>X360WirelessGamepad</string>
+				<string>X360Gamepad</string>
 				<key>X360Slot</key>
 				<integer>3</integer>
+			</dict>
+		</dict>
+		<key>X360WiredController</key>
+		<dict>
+			<key>CFBundleIdentifier</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleIdentifierKernel</key>
+			<string>com.apple.kpi.iokit</string>
+			<key>IOClass</key>
+			<string>IOUserService</string>
+			<key>IOProviderClass</key>
+			<string>IOUSBHostDevice</string>
+			<key>IOUserClass</key>
+			<string>X360WiredController</string>
+			<key>IOUserServerName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>idVendor</key>
+			<integer>1118</integer>
+			<key>idProductArray</key>
+			<array>
+				<integer>654</integer>
+				<integer>655</integer>
+			</array>
+			<key>X360GamepadWired</key>
+			<dict>
+				<key>IOClass</key>
+				<string>AppleUserHIDDevice</string>
+				<key>IOUserClass</key>
+				<string>X360Gamepad</string>
+				<key>X360Slot</key>
+				<integer>0</integer>
 			</dict>
 		</dict>
 	</dict>

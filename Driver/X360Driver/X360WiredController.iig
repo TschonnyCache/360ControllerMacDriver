@@ -1,0 +1,44 @@
+//
+//  X360WiredController.iig
+//  X360Driver
+//
+//  Matches a wired Microsoft Xbox 360 controller (an IOUSBHostDevice) and
+//  publishes it as an X360Gamepad.
+//
+
+#ifndef X360WiredController_h
+#define X360WiredController_h
+
+#include <Availability.h>
+#include <DriverKit/IOService.iig>
+#include <USBDriverKit/IOUSBHostPipe.iig>
+
+class X360Gamepad;
+struct X360OutputRequest;
+
+class X360WiredController : public IOService
+{
+public:
+    virtual bool init() override;
+    virtual void free() override;
+
+    virtual kern_return_t Start(IOService *provider) override;
+    virtual kern_return_t Stop(IOService *provider) override;
+
+    /// Performs a rumble / LED request. Safe to call from any queue.
+    kern_return_t HandleOutputRequest(const struct X360OutputRequest *request) LOCALONLY;
+
+    /// Called by the gamepad from its Stop so we drop our reference.
+    void GamepadDidStop(X360Gamepad *gamepad) LOCALONLY;
+
+    /// USB location ID of the controller.
+    uint32_t GetLocationID() LOCALONLY;
+
+protected:
+    virtual void ReadComplete(OSAction *action,
+                              IOReturn status,
+                              uint32_t actualByteCount,
+                              uint64_t completionTimestamp) TYPE(IOUSBHostPipe::CompleteAsyncIO);
+};
+
+#endif /* X360WiredController_h */

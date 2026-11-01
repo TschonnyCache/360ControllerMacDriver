@@ -1,5 +1,5 @@
 //
-//  X360WirelessGamepad.cpp
+//  X360Gamepad.cpp
 //  X360Driver
 //
 
@@ -12,49 +12,53 @@
 #include <DriverKit/OSCollections.h>
 #include <HIDDriverKit/IOHIDDeviceKeys.h>
 
-#include "X360WirelessGamepad.h"
+#include "X360Gamepad.h"
 #include "X360WirelessReceiver.h"
+#include "X360WiredController.h"
 #include "X360Protocol.h"
 
 #define Log(fmt, ...) os_log(OS_LOG_DEFAULT, "X360Driver gamepad: " fmt, ##__VA_ARGS__)
 
-/// Property (set per slot in Info.plist) telling the gamepad which receiver slot it represents.
+/// Property (set per gamepad in Info.plist) telling the gamepad which receiver slot it represents.
 #define kX360SlotKey          "X360Slot"
 /// Same property name 360Controller used, so existing tools can read it.
 #define kX360BatteryLevelKey  "BatteryLevel"
 
-struct X360WirelessGamepad_IVars {
-    X360WirelessReceiver     *receiver;     // Our provider; outlives us, not retained.
+struct X360Gamepad_IVars {
+    // Exactly one of these is set: our provider, which outlives us (not retained).
+    X360WirelessReceiver     *receiver;
+    X360WiredController      *wired;
     IOBufferMemoryDescriptor *report;
     uint32_t                  slot;
 };
 
 // MARK: - Lifecycle
 
-bool X360WirelessGamepad::init()
+bool X360Gamepad::init()
 {
     if (!super::init()) {
         return false;
     }
-    ivars = IONewZero(X360WirelessGamepad_IVars, 1);
+    ivars = IONewZero(X360Gamepad_IVars, 1);
     return ivars != nullptr;
 }
 
-void X360WirelessGamepad::free()
+void X360Gamepad::free()
 {
     if (ivars != nullptr) {
         OSSafeReleaseNULL(ivars->report);
     }
-    IOSafeDeleteNULL(ivars, X360WirelessGamepad_IVars, 1);
+    IOSafeDeleteNULL(ivars, X360Gamepad_IVars, 1);
     super::free();
 }
 
-kern_return_t IMPL(X360WirelessGamepad, Start)
+kern_return_t IMPL(X360Gamepad, Start)
 {
-    // Resolve receiver and slot first: super's Start asks for the device description.
+    // Resolve provider and slot first: super's Start asks for the device description.
     ivars->receiver = OSDynamicCast(X360WirelessReceiver, provider);
-    if (ivars->receiver == nullptr) {
-        Log("provider is not the receiver");
+    ivars->wired = OSDynamicCast(X360WiredController, provider);
+    if (ivars->receiver == nullptr && ivars->wired == nullptr) {
+        Log("unexpected provider");
         return kIOReturnNoDevice;
     }
     OSDictionary *properties = nullptr;
@@ -76,22 +80,26 @@ kern_return_t IMPL(X360WirelessGamepad, Start)
         Log("super Start failed for slot %u: 0x%x", ivars->slot, ret);
         return ret;
     }
-    Log("started for slot %u", ivars->slot);
+    Log("started (%s, slot %u)", ivars->wired ? "wired" : "wireless", ivars->slot);
     RegisterService();
     return kIOReturnSuccess;
 }
 
-kern_return_t IMPL(X360WirelessGamepad, Stop)
+kern_return_t IMPL(X360Gamepad, Stop)
 {
     Log("stopping slot %u", ivars->slot);
     if (ivars->receiver != nullptr) {
         ivars->receiver->GamepadDidStop(ivars->slot, this);
-        ivars->receiver = nullptr;
     }
+    if (ivars->wired != nullptr) {
+        ivars->wired->GamepadDidStop(this);
+    }
+    ivars->receiver = nullptr;
+    ivars->wired = nullptr;
     return Stop(provider, SUPERDISPATCH);
 }
 
-bool X360WirelessGamepad::handleStart(IOService *provider)
+bool X360Gamepad::handleStart(IOService *provider)
 {
     return super::handleStart(provider);
 }
@@ -116,13 +124,15 @@ static void SetString(OSDictionary *dictionary, const char *key, const char *val
     }
 }
 
-OSDictionary *X360WirelessGamepad::newDeviceDescription()
+OSDictionary *X360Gamepad::newDeviceDescription()
 {
     OSDictionary *description = OSDictionary::withCapacity(12);
     if (description == nullptr) {
         return nullptr;
     }
-    uint32_t location = ivars->receiver ? ivars->receiver->GetLocationID() : 0;
+    bool wired = ivars->wired != nullptr;
+    uint32_t location = wired ? ivars->wired->GetLocationID()
+                              : (ivars->receiver ? ivars->receiver->GetLocationID() : 0);
     char serial[] = "X360-SLOT-0";
     serial[sizeof(serial) - 2] = (char)('1' + ivars->slot);
 
@@ -130,27 +140,27 @@ OSDictionary *X360WirelessGamepad::newDeviceDescription()
     SetNumber(description, kIOHIDVendorIDKey, X360_VENDOR_MICROSOFT);
     SetNumber(description, kIOHIDProductIDKey, X360_PRODUCT_WIRED_CONTROLLER);
     SetNumber(description, kIOHIDVersionNumberKey, 0x0114);
-    SetString(description, kIOHIDTransportKey, "Wireless");
+    SetString(description, kIOHIDTransportKey, wired ? "USB" : "Wireless");
     SetString(description, kIOHIDManufacturerKey, "Microsoft");
-    SetString(description, kIOHIDProductKey, "Xbox 360 Wireless Controller");
-    SetString(description, kIOHIDSerialNumberKey, serial);
-    // Distinct location per slot: some games use it to tell pads apart.
-    SetNumber(description, kIOHIDLocationIDKey, location + ivars->slot + 1);
+    SetString(description, kIOHIDProductKey, wired ? "Xbox 360 Wired Controller" : "Xbox 360 Wireless Controller");
+    SetString(description, kIOHIDSerialNumberKey, wired ? "X360-WIRED" : serial);
+    // Distinct location per pad: some games use it to tell pads apart.
+    SetNumber(description, kIOHIDLocationIDKey, wired ? location : location + ivars->slot + 1);
     SetNumber(description, kIOHIDPrimaryUsagePageKey, 0x01);   // Generic Desktop
     SetNumber(description, kIOHIDPrimaryUsageKey, 0x05);       // Game Pad
     SetNumber(description, kIOHIDCountryCodeKey, 0);
-    SetNumber(description, kIOHIDReportIntervalKey, 8000);     // µs
+    SetNumber(description, kIOHIDReportIntervalKey, wired ? 4000 : 8000);   // µs
     return description;
 }
 
-OSData *X360WirelessGamepad::newReportDescriptor()
+OSData *X360Gamepad::newReportDescriptor()
 {
     return OSData::withBytes(X360HIDReportDescriptor, X360HIDReportDescriptorSize);
 }
 
 // MARK: - Input
 
-void X360WirelessGamepad::PostPadState(const struct X360PadState *state, uint64_t timestamp)
+void X360Gamepad::PostPadState(const struct X360PadState *state, uint64_t timestamp)
 {
     IOAddressSegment range = {};
     if (ivars->report == nullptr || ivars->report->GetAddressRange(&range) != kIOReturnSuccess) {
@@ -167,7 +177,7 @@ void X360WirelessGamepad::PostPadState(const struct X360PadState *state, uint64_
     }
 }
 
-void X360WirelessGamepad::SetBatteryLevel(uint8_t level)
+void X360Gamepad::SetBatteryLevel(uint8_t level)
 {
     OSString *key = OSString::withCString(kX360BatteryLevelKey);
     OSNumber *value = OSNumber::withNumber(level, 8);
@@ -180,13 +190,13 @@ void X360WirelessGamepad::SetBatteryLevel(uint8_t level)
 
 // MARK: - Output
 
-kern_return_t X360WirelessGamepad::setReport(IOMemoryDescriptor *report,
-                                             IOHIDReportType reportType,
-                                             IOOptionBits options,
-                                             uint32_t completionTimeout,
-                                             OSAction *action)
+kern_return_t X360Gamepad::setReport(IOMemoryDescriptor *report,
+                                     IOHIDReportType reportType,
+                                     IOOptionBits options,
+                                     uint32_t completionTimeout,
+                                     OSAction *action)
 {
-    if (report == nullptr || ivars->receiver == nullptr) {
+    if (report == nullptr) {
         return kIOReturnBadArgument;
     }
 
@@ -208,26 +218,12 @@ kern_return_t X360WirelessGamepad::setReport(IOMemoryDescriptor *report,
         return kIOReturnUnsupported;
     }
 
-    uint8_t command[X360_WIRELESS_COMMAND_SIZE];
-    size_t commandLength = 0;
-    switch (request.type) {
-        case X360_OUTPUT_RUMBLE:
-            commandLength = X360BuildRumbleCommand(request.large, request.small, command, sizeof(command));
-            break;
-        case X360_OUTPUT_LED:
-            commandLength = X360BuildLEDCommand(request.pattern, command, sizeof(command));
-            break;
-        case X360_OUTPUT_POWER_OFF:
-            commandLength = X360BuildPowerOffCommand(command, sizeof(command));
-            break;
-        default:
-            return kIOReturnUnsupported;
-    }
-    ret = ivars->receiver->SendCommand(ivars->slot, command, (uint32_t)commandLength);
-    if (ret == kIOReturnSuccess && request.type == X360_OUTPUT_LED) {
-        // The controller needs this after an LED change to keep reporting (as in 360Controller).
-        commandLength = X360BuildEnableReportingCommand(command, sizeof(command));
-        ivars->receiver->SendCommand(ivars->slot, command, (uint32_t)commandLength);
+    if (ivars->receiver != nullptr) {
+        ret = ivars->receiver->HandleOutputRequest(ivars->slot, &request);
+    } else if (ivars->wired != nullptr) {
+        ret = ivars->wired->HandleOutputRequest(&request);
+    } else {
+        ret = kIOReturnNotAttached;
     }
     if (ret != kIOReturnSuccess) {
         return ret;

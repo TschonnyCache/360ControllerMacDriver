@@ -7,7 +7,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var activator = DriverActivator()
-    @State private var monitor = DeviceMonitor()
+    @State private var hardware = DeviceMonitor()
+    @State private var gamepads = GamepadMonitor()
 
     var body: some View {
         Form {
@@ -19,39 +20,48 @@ struct ContentView: View {
                     Button("Activate Driver", action: activator.activate)
                         .buttonStyle(.borderedProminent)
                     Button("Deactivate", action: activator.deactivate)
+                    if activator.state == .needsApproval {
+                        Button("Open System Settings", action: openDriverExtensionSettings)
+                    }
                 }
                 .disabled(activator.state.isWorking)
             }
 
             Section("Hardware") {
                 LabeledContent("Wireless receiver") {
-                    StatusText(isOn: monitor.receiverConnected, on: "Connected", off: "Not found")
+                    StatusText(isOn: hardware.receiverConnected, on: "Connected", off: "Not found")
+                }
+                if hardware.wiredControllerCount > 0 {
+                    LabeledContent("Wired controllers") {
+                        Text("\(hardware.wiredControllerCount)")
+                    }
                 }
                 LabeledContent("Driver attached") {
-                    StatusText(isOn: monitor.driverAttached, on: "Yes", off: "No")
+                    StatusText(isOn: hardware.driverAttached, on: "Yes", off: "No")
                 }
             }
 
             Section("Controllers") {
-                if monitor.gamepads.isEmpty {
-                    Text("No controllers. Press the guide button on a paired controller.")
+                if gamepads.gamepads.isEmpty {
+                    Text("No controllers. Turn on a paired controller with its guide button, or plug in a wired one.")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(monitor.gamepads) { pad in
-                        LabeledContent(pad.name) {
-                            if let level = pad.batteryLevel {
-                                Label("\(level * 100 / 255) %", systemImage: "battery.75percent")
-                            } else {
-                                Text(pad.serial).foregroundStyle(.secondary)
-                            }
-                        }
+                    ForEach(gamepads.gamepads) { pad in
+                        ControllerTestView(pad: pad)
                     }
                 }
             }
         }
         .formStyle(.grouped)
-        .frame(minWidth: 420, minHeight: 360)
-        .task { await monitor.run() }
+        .frame(minWidth: 480, minHeight: 420)
+        .task { await hardware.run() }
+        .task { await gamepads.run() }
+    }
+
+    private func openDriverExtensionSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") {
+            NSWorkspace.shared.open(url)
+        }
     }
 }
 

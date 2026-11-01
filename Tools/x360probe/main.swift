@@ -1,8 +1,9 @@
 //
-//  x360probe — talks to an Xbox 360 Wireless Receiver from user space (no
-//  driver, no signing) to validate the protocol implementation in Core/.
+//  x360probe — talks to an Xbox 360 Wireless Receiver (or a wired Xbox 360
+//  controller) from user space — no driver, no signing — to validate the
+//  protocol implementation in Core/.
 //
-//  Usage: x360probe [--seconds N] [--rumble] [--raw]
+//  Usage: x360probe [--seconds N] [--rumble] [--led N] [--power-off] [--raw]
 //
 
 import Foundation
@@ -16,6 +17,20 @@ struct Options {
     var seconds: Double = 20
     var rumble = false
     var raw = false
+    /// LED pattern (0–13) to show instead of the player number.
+    var led: UInt8?
+    /// Switch wireless pads off as soon as they are detected.
+    var powerOff = false
+
+    static let usage = """
+        usage: x360probe [--seconds N] [--rumble] [--led N] [--power-off] [--raw]
+          --seconds N   listen for N seconds (default 20)
+          --rumble      short rumble when a pad is detected
+          --led N       show LED pattern N (0 off, 1 blink all, 2–5 flash+player, 6–9 player,
+                        10 rotate, 11 blink, 12 slow blink, 13 alternate)
+          --power-off   switch wireless pads off when detected
+          --raw         print every packet
+        """
 
     init(arguments: [String]) {
         var iterator = arguments.dropFirst().makeIterator()
@@ -24,8 +39,15 @@ struct Options {
             case "--seconds": seconds = iterator.next().flatMap(Double.init) ?? seconds
             case "--rumble": rumble = true
             case "--raw": raw = true
+            case "--power-off": powerOff = true
+            case "--led":
+                guard let value = iterator.next().flatMap(UInt8.init), value <= 13 else {
+                    print(Self.usage)
+                    exit(64)
+                }
+                led = value
             default:
-                print("usage: x360probe [--seconds N] [--rumble] [--raw]")
+                print(Self.usage)
                 exit(argument == "--help" ? 0 : 64)
             }
         }
@@ -37,6 +59,10 @@ let receiverProductIDs: Set<Int> = [
     Int(X360_PRODUCT_WIRELESS_RECEIVER_2),
     Int(X360_PRODUCT_WIRELESS_RECEIVER_3),
 ]
+let wiredProductIDs: Set<Int> = [
+    Int(X360_PRODUCT_WIRED_CONTROLLER),
+    Int(X360_PRODUCT_WIRED_CONTROLLER_2),
+]
 
 // MARK: - Registry helpers
 
@@ -45,31 +71,43 @@ func intProperty(_ service: io_service_t, _ key: String) -> Int? {
         .takeRetainedValue() as? Int
 }
 
-func findReceiver() -> io_service_t? {
+/// The first receiver, or else the first wired pad.
+func findDevice() -> (service: io_service_t, wired: Bool)? {
     var iterator: io_iterator_t = 0
     guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOUSBHostDevice"), &iterator) == KERN_SUCCESS else {
         return nil
     }
     defer { IOObjectRelease(iterator) }
+    var wired: io_service_t?
     while case let service = IOIteratorNext(iterator), service != 0 {
-        if intProperty(service, "idVendor") == Int(X360_VENDOR_MICROSOFT),
-           let product = intProperty(service, "idProduct"), receiverProductIDs.contains(product) {
-            return service
+        if intProperty(service, "idVendor") == Int(X360_VENDOR_MICROSOFT), let product = intProperty(service, "idProduct") {
+            if receiverProductIDs.contains(product) {
+                if let wired { IOObjectRelease(wired) }
+                return (service, false)
+            }
+            if wiredProductIDs.contains(product), wired == nil {
+                wired = service
+                continue
+            }
         }
         IOObjectRelease(service)
     }
-    return nil
+    return wired.map { ($0, true) }
 }
 
-/// Controller interfaces (protocol 0x81) that are children of `device`, sorted by interface number.
-func controllerInterfaces(of device: io_service_t) -> [io_service_t] {
+/// Controller interfaces that are children of `device`, sorted by interface number:
+/// protocol 0x81 on a receiver, subclass 0x5D / protocol 0x01 on a wired pad.
+func controllerInterfaces(of device: io_service_t, wired: Bool) -> [io_service_t] {
     var iterator: io_iterator_t = 0
     guard IORegistryEntryGetChildIterator(device, kIOServicePlane, &iterator) == KERN_SUCCESS else { return [] }
     defer { IOObjectRelease(iterator) }
     var found: [(Int, io_service_t)] = []
     while case let child = IOIteratorNext(iterator), child != 0 {
-        if IOObjectConformsTo(child, "IOUSBHostInterface") != 0,
-           intProperty(child, "bInterfaceProtocol") == Int(X360_INTERFACE_PROTOCOL_CONTROLLER) {
+        let matches = wired
+            ? intProperty(child, "bInterfaceSubClass") == Int(X360_WIRED_INTERFACE_SUBCLASS)
+                && intProperty(child, "bInterfaceProtocol") == Int(X360_WIRED_INTERFACE_PROTOCOL)
+            : intProperty(child, "bInterfaceProtocol") == Int(X360_INTERFACE_PROTOCOL_CONTROLLER)
+        if IOObjectConformsTo(child, "IOUSBHostInterface") != 0, matches {
             found.append((intProperty(child, "bInterfaceNumber") ?? 0, child))
         } else {
             IOObjectRelease(child)
@@ -99,9 +137,10 @@ func describe(_ state: X360PadState) -> String {
 
 // MARK: - Slot
 
-/// One controller slot of the receiver. All mutable state is confined to the shared serial queue.
+/// One controller slot of the receiver, or the wired pad. All mutable state is confined to the shared serial queue.
 final class Slot: @unchecked Sendable {
     let index: Int
+    let wired: Bool
     let interface: IOUSBHostInterface
     let inPipe: IOUSBHostPipe
     let outPipe: IOUSBHostPipe
@@ -109,8 +148,10 @@ final class Slot: @unchecked Sendable {
     var lastState: X360PadState?
     var connected = false
 
-    init(index: Int, interface: IOUSBHostInterface, inPipe: IOUSBHostPipe, outPipe: IOUSBHostPipe, options: Options) {
+    init(index: Int, wired: Bool, interface: IOUSBHostInterface, inPipe: IOUSBHostPipe, outPipe: IOUSBHostPipe,
+         options: Options) {
         self.index = index
+        self.wired = wired
         self.interface = interface
         self.inPipe = inPipe
         self.outPipe = outPipe
@@ -118,7 +159,7 @@ final class Slot: @unchecked Sendable {
     }
 
     func log(_ message: String) {
-        print("[slot \(index)] \(message)")
+        print(wired ? "[wired] \(message)" : "[slot \(index)] \(message)")
     }
 
     func send(_ build: (UnsafeMutablePointer<UInt8>, Int) -> Int, _ what: String) {
@@ -134,7 +175,12 @@ final class Slot: @unchecked Sendable {
     }
 
     func start() {
-        send({ X360BuildInquiryCommand($0, $1) }, "inquiry")
+        if wired {
+            log("controller present")
+            becomeActive()
+        } else {
+            send({ X360BuildInquiryCommand($0, $1) }, "inquiry")
+        }
         queueRead()
     }
 
@@ -157,7 +203,11 @@ final class Slot: @unchecked Sendable {
     func handle(_ packet: [UInt8]) {
         if options.raw { log("raw \(hex(packet))") }
         var event = X360Event()
-        guard packet.withUnsafeBufferPointer({ X360ParseWirelessPacket($0.baseAddress, $0.count, &event) }) else {
+        let parsed = packet.withUnsafeBufferPointer {
+            wired ? X360ParseWiredPacket($0.baseAddress, $0.count, &event)
+                  : X360ParseWirelessPacket($0.baseAddress, $0.count, &event)
+        }
+        guard parsed else {
             return
         }
         switch event.type {
@@ -193,14 +243,33 @@ final class Slot: @unchecked Sendable {
     func becomeActive() {
         guard !connected else { return }
         connected = true
-        let pattern = UInt8(X360LEDPatternForSlot(UInt32(index)).rawValue)
-        send({ X360BuildLEDCommand(pattern, $0, $1) }, "LED")
-        send({ X360BuildEnableReportingCommand($0, $1) }, "enable")
-        if options.rumble {
-            send({ X360BuildRumbleCommand(0x80, 0x80, $0, $1) }, "rumble")
-            interface.queue.asyncAfter(deadline: .now() + 0.4) { [self] in
-                send({ X360BuildRumbleCommand(0, 0, $0, $1) }, "rumble off")
+        if options.powerOff {
+            if wired {
+                log("wired pads can't be switched off")
+            } else {
+                log("switching off")
+                send({ X360BuildPowerOffCommand($0, $1) }, "power off")
+                return
             }
+        }
+        let pattern = options.led ?? UInt8(X360LEDPatternForSlot(UInt32(index)).rawValue)
+        if wired {
+            send({ X360BuildWiredLEDCommand(pattern, $0, $1) }, "LED")
+        } else {
+            send({ X360BuildLEDCommand(pattern, $0, $1) }, "LED")
+            send({ X360BuildEnableReportingCommand($0, $1) }, "enable")
+        }
+        if options.rumble {
+            rumble(0x80)
+            interface.queue.asyncAfter(deadline: .now() + 0.4) { [self] in rumble(0) }
+        }
+    }
+
+    private func rumble(_ level: UInt8) {
+        if wired {
+            send({ X360BuildWiredRumbleCommand(level, level, $0, $1) }, "rumble")
+        } else {
+            send({ X360BuildRumbleCommand(level, level, $0, $1) }, "rumble")
         }
     }
 }
@@ -228,23 +297,23 @@ func endpointAddresses(of interface: IOUSBHostInterface) -> (in: UInt8, out: UIn
 
 let options = Options(arguments: CommandLine.arguments)
 
-guard let receiverService = findReceiver() else {
-    print("No Xbox 360 Wireless Receiver found.")
+guard let (receiverService, isWired) = findDevice() else {
+    print("No Xbox 360 Wireless Receiver or wired Xbox 360 controller found.")
     exit(1)
 }
-print("Found receiver \(String(format: "%04X:%04X", intProperty(receiverService, "idVendor") ?? 0, intProperty(receiverService, "idProduct") ?? 0))")
+print("Found \(isWired ? "wired controller" : "receiver") \(String(format: "%04X:%04X", intProperty(receiverService, "idVendor") ?? 0, intProperty(receiverService, "idProduct") ?? 0))")
 
 let queue = DispatchQueue(label: "x360probe")
 let device: IOUSBHostDevice
 do {
     device = try IOUSBHostDevice(__ioService: receiverService, options: [], queue: queue, interestHandler: nil)
 } catch {
-    print("Could not open the receiver (\(error)). Another process or driver may own it exclusively.")
+    print("Could not open the device (\(error)). Another process or driver (X360Driver?) may own it exclusively.")
     exit(1)
 }
 
 if device.configurationDescriptor == nil {
-    print("Receiver is unconfigured — selecting configuration 1")
+    print("Device is unconfigured — selecting configuration 1")
     do {
         try device.__configure(withValue: 1, matchInterfaces: true)
     } catch {
@@ -257,7 +326,7 @@ if device.configurationDescriptor == nil {
 // Interfaces are published asynchronously after SetConfiguration.
 var interfaceServices: [io_service_t] = []
 for _ in 0..<40 {
-    interfaceServices = controllerInterfaces(of: receiverService)
+    interfaceServices = controllerInterfaces(of: receiverService, wired: isWired)
     if !interfaceServices.isEmpty { break }
     Thread.sleep(forTimeInterval: 0.05)
 }
@@ -274,7 +343,8 @@ for (index, service) in interfaceServices.enumerated() {
         let inPipe = try interface.copyPipe(withAddress: Int(addresses.in))
         let outPipe = try interface.copyPipe(withAddress: Int(addresses.out))
         print("[slot \(index)] IN 0x\(String(addresses.in, radix: 16)) OUT 0x\(String(addresses.out, radix: 16))")
-        slots.append(Slot(index: index, interface: interface, inPipe: inPipe, outPipe: outPipe, options: options))
+        slots.append(Slot(index: index, wired: isWired, interface: interface, inPipe: inPipe, outPipe: outPipe,
+                          options: options))
     } catch {
         print("[slot \(index)] open failed: \(error)")
     }

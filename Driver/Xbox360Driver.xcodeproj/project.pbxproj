@@ -8,15 +8,20 @@
 
 /* Begin PBXBuildFile section */
 		73C6F815D74C78DE085B9BEC /* X360WirelessReceiver.iig in Sources */ = {isa = PBXBuildFile; fileRef = 8CAAAEA31C55A75EA97706AC /* X360WirelessReceiver.iig */; };
-		1B95F33FDA40A8A7D4E9669B /* X360WirelessGamepad.iig in Sources */ = {isa = PBXBuildFile; fileRef = 9416641AEB114BFA2C541EE7 /* X360WirelessGamepad.iig */; };
+		1B95F33FDA40A8A7D4E9669B /* X360Gamepad.iig in Sources */ = {isa = PBXBuildFile; fileRef = 9416641AEB114BFA2C541EE7 /* X360Gamepad.iig */; };
 		90D3B70C558F7EBE72378F91 /* X360WirelessReceiver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8741C36A5D8E79D2FE3F50C3 /* X360WirelessReceiver.cpp */; };
-		DE85226ABCACE9BBB8EA6E85 /* X360WirelessGamepad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1064FC35377D1F0A29896E6 /* X360WirelessGamepad.cpp */; };
+		DE85226ABCACE9BBB8EA6E85 /* X360Gamepad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1064FC35377D1F0A29896E6 /* X360Gamepad.cpp */; };
 		74E8DC2F1B193F956BB6F72D /* X360Protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = E7BFBE43422B74C26728634A /* X360Protocol.c */; };
 		ACC8344C72F15997E69A965A /* X360DriverManagerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85027D31833E94EA78AFAAF3 /* X360DriverManagerApp.swift */; };
 		E733DA00F52B7FE375AE664A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2319FB8EBC932694CB0194BC /* ContentView.swift */; };
 		12EAC4CA33DD0EAE8EFE83C0 /* DriverActivator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53738AC1857BC37F7C21C39C /* DriverActivator.swift */; };
 		CC6F5C68B4C8255A6F9C958C /* DeviceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E1BA74611D98C0862CA1A9 /* DeviceMonitor.swift */; };
 		1483F6AF8D9F8AF1C38B1AFC /* X360Driver.dext in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 56E1BA7D26CFB79560C32A70 /* X360Driver.dext */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B644F95F020A9D95D204D2AD /* X360WiredController.iig in Sources */ = {isa = PBXBuildFile; fileRef = 11187E9B956F8DD88C548A43 /* X360WiredController.iig */; };
+		C4637C7F439E86C7C233D9D0 /* X360WiredController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A5B721622C4D9BC6BC90BECF /* X360WiredController.cpp */; };
+		11B1F503577967E3759B16C2 /* X360USBSupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4619D89038510F1ECD721132 /* X360USBSupport.cpp */; };
+		FC3A3B9B77AB447CFB05638B /* GamepadMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5013E4479E3BB0CBB9AEED2 /* GamepadMonitor.swift */; };
+		B8E88DCFB8EC6A384D44288D /* ControllerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F82620BB43F2862D6F2C5E /* ControllerTestView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,8 +51,8 @@
 /* Begin PBXFileReference section */
 		8CAAAEA31C55A75EA97706AC /* X360WirelessReceiver.iig */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.iig; path = X360WirelessReceiver.iig; sourceTree = "<group>"; };
 		8741C36A5D8E79D2FE3F50C3 /* X360WirelessReceiver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = X360WirelessReceiver.cpp; sourceTree = "<group>"; };
-		9416641AEB114BFA2C541EE7 /* X360WirelessGamepad.iig */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.iig; path = X360WirelessGamepad.iig; sourceTree = "<group>"; };
-		E1064FC35377D1F0A29896E6 /* X360WirelessGamepad.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = X360WirelessGamepad.cpp; sourceTree = "<group>"; };
+		9416641AEB114BFA2C541EE7 /* X360Gamepad.iig */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.iig; path = X360Gamepad.iig; sourceTree = "<group>"; };
+		E1064FC35377D1F0A29896E6 /* X360Gamepad.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = X360Gamepad.cpp; sourceTree = "<group>"; };
 		7C30FB8FD18F7C2B3145D6C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2E4D13AC3779099317F5642F /* X360Driver.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = X360Driver.entitlements; sourceTree = "<group>"; };
 		E7BFBE43422B74C26728634A /* X360Protocol.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = X360Protocol.c; sourceTree = "<group>"; };
@@ -59,6 +64,12 @@
 		7299068FE7CC3B4951ED7BFE /* X360DriverManager.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = X360DriverManager.entitlements; sourceTree = "<group>"; };
 		56E1BA7D26CFB79560C32A70 /* X360Driver.dext */ = {isa = PBXFileReference; explicitFileType = "wrapper.driver-extension"; includeInIndex = 0; path = X360Driver.dext; sourceTree = BUILT_PRODUCTS_DIR; };
 		588CB34AE98642743F765983 /* X360DriverManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = X360DriverManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		11187E9B956F8DD88C548A43 /* X360WiredController.iig */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.iig; path = X360WiredController.iig; sourceTree = "<group>"; };
+		A5B721622C4D9BC6BC90BECF /* X360WiredController.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = X360WiredController.cpp; sourceTree = "<group>"; };
+		3E061E4F2BEDCF5D2456051B /* X360USBSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = X360USBSupport.h; sourceTree = "<group>"; };
+		4619D89038510F1ECD721132 /* X360USBSupport.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = X360USBSupport.cpp; sourceTree = "<group>"; };
+		D5013E4479E3BB0CBB9AEED2 /* GamepadMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadMonitor.swift; sourceTree = "<group>"; };
+		03F82620BB43F2862D6F2C5E /* ControllerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerTestView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,8 +114,12 @@
 			children = (
 				8CAAAEA31C55A75EA97706AC /* X360WirelessReceiver.iig */,
 				8741C36A5D8E79D2FE3F50C3 /* X360WirelessReceiver.cpp */,
-				9416641AEB114BFA2C541EE7 /* X360WirelessGamepad.iig */,
-				E1064FC35377D1F0A29896E6 /* X360WirelessGamepad.cpp */,
+				4619D89038510F1ECD721132 /* X360USBSupport.cpp */,
+				3E061E4F2BEDCF5D2456051B /* X360USBSupport.h */,
+				A5B721622C4D9BC6BC90BECF /* X360WiredController.cpp */,
+				11187E9B956F8DD88C548A43 /* X360WiredController.iig */,
+				9416641AEB114BFA2C541EE7 /* X360Gamepad.iig */,
+				E1064FC35377D1F0A29896E6 /* X360Gamepad.cpp */,
 				7C30FB8FD18F7C2B3145D6C9 /* Info.plist */,
 				2E4D13AC3779099317F5642F /* X360Driver.entitlements */,
 			);
@@ -128,6 +143,8 @@
 				2319FB8EBC932694CB0194BC /* ContentView.swift */,
 				53738AC1857BC37F7C21C39C /* DriverActivator.swift */,
 				20E1BA74611D98C0862CA1A9 /* DeviceMonitor.swift */,
+				03F82620BB43F2862D6F2C5E /* ControllerTestView.swift */,
+				D5013E4479E3BB0CBB9AEED2 /* GamepadMonitor.swift */,
 				7299068FE7CC3B4951ED7BFE /* X360DriverManager.entitlements */,
 			);
 			path = X360DriverManager;
@@ -243,9 +260,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				73C6F815D74C78DE085B9BEC /* X360WirelessReceiver.iig in Sources */,
-				1B95F33FDA40A8A7D4E9669B /* X360WirelessGamepad.iig in Sources */,
+				1B95F33FDA40A8A7D4E9669B /* X360Gamepad.iig in Sources */,
 				90D3B70C558F7EBE72378F91 /* X360WirelessReceiver.cpp in Sources */,
-				DE85226ABCACE9BBB8EA6E85 /* X360WirelessGamepad.cpp in Sources */,
+				DE85226ABCACE9BBB8EA6E85 /* X360Gamepad.cpp in Sources */,
+				11B1F503577967E3759B16C2 /* X360USBSupport.cpp in Sources */,
+				C4637C7F439E86C7C233D9D0 /* X360WiredController.cpp in Sources */,
+				B644F95F020A9D95D204D2AD /* X360WiredController.iig in Sources */,
 				74E8DC2F1B193F956BB6F72D /* X360Protocol.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -258,6 +278,8 @@
 				E733DA00F52B7FE375AE664A /* ContentView.swift in Sources */,
 				12EAC4CA33DD0EAE8EFE83C0 /* DriverActivator.swift in Sources */,
 				CC6F5C68B4C8255A6F9C958C /* DeviceMonitor.swift in Sources */,
+				B8E88DCFB8EC6A384D44288D /* ControllerTestView.swift in Sources */,
+				FC3A3B9B77AB447CFB05638B /* GamepadMonitor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -3,7 +3,7 @@
 //  X360Driver
 //
 //  Matches the Xbox 360 Wireless Receiver (an IOUSBHostDevice), owns its four
-//  controller slots and publishes one X360WirelessGamepad per connected pad.
+//  controller slots and publishes one X360Gamepad per connected pad.
 //
 
 #ifndef X360WirelessReceiver_h
@@ -11,9 +11,11 @@
 
 #include <Availability.h>
 #include <DriverKit/IOService.iig>
+#include <DriverKit/IOTimerDispatchSource.iig>
 #include <USBDriverKit/IOUSBHostPipe.iig>
 
-class X360WirelessGamepad;
+class X360Gamepad;
+struct X360OutputRequest;
 
 class X360WirelessReceiver : public IOService
 {
@@ -24,11 +26,11 @@ public:
     virtual kern_return_t Start(IOService *provider) override;
     virtual kern_return_t Stop(IOService *provider) override;
 
-    /// Sends a 12-byte receiver command to `slot`. Safe to call from any queue.
-    kern_return_t SendCommand(uint32_t slot, const uint8_t *bytes, uint32_t length) LOCALONLY;
+    /// Performs a rumble / LED / power-off request for `slot`. Safe to call from any queue.
+    kern_return_t HandleOutputRequest(uint32_t slot, const struct X360OutputRequest *request) LOCALONLY;
 
     /// Called by a gamepad from its Stop so the receiver drops its reference.
-    void GamepadDidStop(uint32_t slot, X360WirelessGamepad *gamepad) LOCALONLY;
+    void GamepadDidStop(uint32_t slot, X360Gamepad *gamepad) LOCALONLY;
 
     /// USB location ID of the receiver (used to derive per-pad location IDs).
     uint32_t GetLocationID() LOCALONLY;
@@ -39,6 +41,9 @@ protected:
                               IOReturn status,
                               uint32_t actualByteCount,
                               uint64_t completionTimestamp) TYPE(IOUSBHostPipe::CompleteAsyncIO);
+
+    /// Fires once a minute to switch off controllers that have been idle too long.
+    virtual void IdleTimerFired(OSAction *action, uint64_t time) TYPE(IOTimerDispatchSource::TimerOccurred);
 };
 
 #endif /* X360WirelessReceiver_h */

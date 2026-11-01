@@ -1,7 +1,8 @@
 # Xbox 360 Wireless Receiver driver for macOS
 
-Use your **Xbox 360 wireless controllers** on a modern Mac, including Apple silicon,
-through the **Xbox 360 Wireless Gaming Receiver**. Up to four controllers are supported.
+Use your **Xbox 360 controllers** on a modern Mac, including Apple silicon: up to
+four wireless controllers through the **Xbox 360 Wireless Gaming Receiver**, and
+wired Microsoft Xbox 360 controllers.
 
 This is a ground-up rewrite of the classic
 [360Controller](https://github.com/360Controller/360Controller) driver as a
@@ -19,10 +20,13 @@ removed with a normal app, without reboots or kernel extensions.
 
 - Xbox 360 Wireless Gaming Receiver for Windows: official (`045E:0719`) and common
   third-party models (`045E:0291`, `045E:02A9`)
-- Up to 4 controllers at once, each shown as its own game pad
+- Up to 4 wireless controllers at once, each shown as its own game pad
+- Wired Microsoft Xbox 360 controllers (`045E:028E`, `045E:028F`)
 - Controller ring light shows the player number (1–4)
 - Rumble
 - Battery level, shown in the companion app
+- Wireless controllers switch off after 15 minutes without input, to save batteries
+- Built-in test panel: live sticks, triggers and buttons, plus Rumble and Identify buttons
 - Controllers appear exactly like they did with the old 360Controller driver, so
   existing game mappings keep working
 
@@ -41,8 +45,9 @@ anything that reads game pads through IOKit/HID:
 ## Requirements
 
 - macOS 14 Sonoma or later, on Apple silicon or Intel
-- An Xbox 360 Wireless Gaming Receiver plugged in by USB
-- Xbox 360 *wireless* controllers. Wired Xbox 360 controllers aren't supported yet.
+- For wireless controllers: an Xbox 360 Wireless Gaming Receiver plugged in by USB
+- Wired controllers: only Microsoft's own. Third-party wired pads (Mad Catz, PDP, …)
+  would each need a separate permission from Apple.
 
 ## Installation
 
@@ -56,10 +61,13 @@ anything that reads game pads through IOKit/HID:
 5. Unplug the receiver and plug it back in.
 6. Turn on a controller with the guide button. If it isn't paired yet, press the
    button on the receiver, then the small connect button on top of the controller.
-   The ring should light up the player-1 segment.
+   The ring should light up the player-1 segment. Wired controllers work as soon as
+   they're plugged in.
 
 The app shows whether the receiver is detected and which controllers are connected.
-You can quit the app afterwards; the driver keeps running.
+Move the sticks and press buttons to check that everything arrives. Use **Identify**
+to find out which physical controller is which. You can quit the app afterwards; the
+driver keeps running.
 
 ## Uninstalling
 
@@ -93,12 +101,14 @@ git clone https://github.com/TschonnyCache/360ControllerMacDriver.git
 cd 360ControllerMacDriver
 
 swift test                              # protocol unit tests
-swift run x360probe --seconds 30        # talk to the receiver directly, no driver needed
+swift run x360probe --seconds 30        # talk to the receiver / a wired pad directly, no driver needed
+swift run x360probe --help              # LED, rumble and power-off tests
 open Driver/Xbox360Driver.xcodeproj     # driver + companion app
 ```
 
-`x360probe` reads the receiver from user space and prints controller input. It's
-the quickest way to check whether your receiver and controllers work at all.
+`x360probe` reads the receiver (or a wired controller) from user space and prints
+controller input. It's the quickest way to check whether your hardware works at all.
+It needs exclusive access, so it can't run while the driver is active.
 
 Loading a self-built driver requires either Apple-granted DriverKit entitlements
 or temporarily disabling System Integrity Protection. [SETUP.md](SETUP.md)
@@ -112,7 +122,7 @@ are signed.
 | `Core/` | Portable C implementation of the receiver protocol, shared by everything else |
 | `Tests/` | Unit tests for the protocol ([Swift Testing](https://developer.apple.com/documentation/testing)) |
 | `Tools/x360probe/` | Command-line tool that talks to the receiver directly |
-| `Driver/X360Driver/` | The DriverKit extension: a USB receiver service plus one HID game pad per controller |
+| `Driver/X360Driver/` | The DriverKit extension: receiver and wired-controller services, plus one HID game pad per controller |
 | `Driver/X360DriverManager/` | SwiftUI app that installs the driver and shows its status |
 | `scripts/release.sh` | Signs, notarizes and packages a release |
 | `PLAN.md` | Design notes and roadmap |
@@ -120,10 +130,11 @@ are signed.
 ### How it works
 
 ```
-Receiver (USB) ─▶ X360WirelessReceiver ─▶ X360WirelessGamepad ×4 ─▶ HID ─▶ games
-                  owns the 4 slots,        one per connected pad,
-                  connect/disconnect,      Xbox 360 HID report,
-                  LED, rumble               rumble/LED requests ◀── games
+Receiver (USB) ─▶ X360WirelessReceiver ─▶ X360Gamepad ×4 ─▶ HID ─▶ games
+                  4 slots, connect/          Xbox 360 HID report,
+                  disconnect, LED, rumble,   rumble/LED requests ◀── games
+                  idle power-off
+Wired pad (USB) ─▶ X360WiredController ──▶ X360Gamepad
 ```
 
 ## Contributing
@@ -133,8 +144,7 @@ especially need right now:
 
 - **Signing releases:** you need an Apple Developer Program membership. See
   [CONTRIBUTOR.md](CONTRIBUTOR.md).
-- Testing with third-party receivers and with games
-- Support for wired Xbox 360 controllers
+- Testing with third-party receivers, wired controllers and games
 
 ## Credits
 

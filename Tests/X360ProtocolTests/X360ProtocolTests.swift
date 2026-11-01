@@ -133,6 +133,48 @@ struct CommandTests {
     }
 }
 
+@Suite("Wired controller")
+struct WiredTests {
+    private func parseWired(_ bytes: [UInt8]) -> (ok: Bool, event: X360Event) {
+        var event = X360Event()
+        let ok = bytes.withUnsafeBufferPointer { X360ParseWiredPacket($0.baseAddress, $0.count, &event) }
+        return (ok, event)
+    }
+
+    @Test func inputReport() {
+        // Same layout as the report embedded in wireless packets, but with length 0x14.
+        let report: [UInt8] = [0x00, 0x14, 0x10, 0x20, 0x00, 0x80,
+                               0x00, 0x80, 0xFF, 0x7F, 0x01, 0x00, 0xFF, 0xFF,
+                               0, 0, 0, 0, 0, 0]
+        let (ok, event) = parseWired(report)
+        #expect(ok)
+        #expect(event.type == X360_EVENT_INPUT)
+        #expect(event.state.buttons == UInt16(X360_BUTTON_START | X360_BUTTON_B))
+        #expect(event.state.leftTrigger == 0 && event.state.rightTrigger == 0x80)
+        #expect(event.state.leftX == -32768 && event.state.leftY == 32767)
+        #expect(event.state.rightX == 1 && event.state.rightY == -1)
+    }
+
+    @Test(arguments: [[UInt8]([0x01, 0x03, 0x06]), [0x03, 0x03, 0x00], [0x08, 0x03, 0x00], []])
+    func statusPacketsAreIgnored(packet: [UInt8]) {
+        let (ok, event) = parseWired(packet)
+        #expect(!ok)
+        #expect(event.type == X360_EVENT_NONE)
+    }
+
+    @Test func ledCommand() {
+        var buffer = [UInt8](repeating: 0xEE, count: Int(X360_WIRED_COMMAND_MAX))
+        let written = buffer.withUnsafeMutableBufferPointer { X360BuildWiredLEDCommand(6, $0.baseAddress, $0.count) }
+        #expect(Array(buffer.prefix(written)) == [0x01, 0x03, 0x06])
+    }
+
+    @Test func rumbleCommand() {
+        var buffer = [UInt8](repeating: 0xEE, count: Int(X360_WIRED_COMMAND_MAX))
+        let written = buffer.withUnsafeMutableBufferPointer { X360BuildWiredRumbleCommand(0xAA, 0x55, $0.baseAddress, $0.count) }
+        #expect(Array(buffer.prefix(written)) == [0x00, 0x08, 0x00, 0xAA, 0x55, 0x00, 0x00, 0x00])
+    }
+}
+
 @Suite("Virtual HID gamepad")
 struct HIDTests {
     /// Walks the report descriptor and returns the total number of input bits,

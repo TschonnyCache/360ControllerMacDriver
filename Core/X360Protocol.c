@@ -144,6 +144,22 @@ bool X360ParseWirelessPacket(const uint8_t *data, size_t length, X360Event *out)
     return false;
 }
 
+bool X360ParseWiredPacket(const uint8_t *data, size_t length, X360Event *out)
+{
+    if (out == NULL) {
+        return false;
+    }
+    Clear(out, sizeof(*out));
+    // Input report: `00 14 <buttons…>`. Other types (01 = LED status, 03 = rumble
+    // status, 08 = headset) carry nothing we use.
+    if (data != NULL && length >= 2 && data[0] == 0x00 && data[1] == 0x14
+        && X360ParseInputReport(data, length, &out->state)) {
+        out->type = X360_EVENT_INPUT;
+        return true;
+    }
+    return false;
+}
+
 // MARK: - Host → receiver
 
 X360LEDPattern X360LEDPatternForSlot(unsigned slot)
@@ -202,6 +218,31 @@ size_t X360BuildInquiryCommand(uint8_t *out, size_t capacity)
     out[2] = 0x0F;
     out[3] = 0xC0;
     return X360_WIRELESS_COMMAND_SIZE;
+}
+
+// MARK: - Host → wired controller
+
+size_t X360BuildWiredLEDCommand(uint8_t pattern, uint8_t *out, size_t capacity)
+{
+    if (out == NULL || capacity < 3) {
+        return 0;
+    }
+    out[0] = 0x01;
+    out[1] = 0x03;
+    out[2] = (uint8_t)(pattern % 0x0E);
+    return 3;
+}
+
+size_t X360BuildWiredRumbleCommand(uint8_t large, uint8_t small, uint8_t *out, size_t capacity)
+{
+    if (out == NULL || capacity < 8) {
+        return 0;
+    }
+    Clear(out, 8);
+    out[1] = 0x08;
+    out[3] = large;
+    out[4] = small;
+    return 8;
 }
 
 // MARK: - Virtual HID gamepad

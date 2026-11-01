@@ -25,7 +25,8 @@ extern "C" {
 #define X360_PRODUCT_WIRELESS_RECEIVER     0x0719  // Official "for Windows" receiver
 #define X360_PRODUCT_WIRELESS_RECEIVER_2   0x0291  // Common (often third-party) receiver
 #define X360_PRODUCT_WIRELESS_RECEIVER_3   0x02A9  // Another third-party variant
-#define X360_PRODUCT_WIRED_CONTROLLER      0x028E  // Identity used for the virtual pads
+#define X360_PRODUCT_WIRED_CONTROLLER      0x028E  // Wired pad; also the identity used for the virtual pads
+#define X360_PRODUCT_WIRED_CONTROLLER_2    0x028F  // Wired pad, later revision
 
 /// Number of controller slots a receiver exposes.
 #define X360_MAX_SLOTS                     4
@@ -34,6 +35,15 @@ extern "C" {
 #define X360_INTERFACE_PROTOCOL_CONTROLLER 0x81
 /// bInterfaceProtocol of a slot's headset interface (unused).
 #define X360_INTERFACE_PROTOCOL_HEADSET    0x82
+
+/// bInterfaceSubClass / bInterfaceProtocol of a wired pad's controller interface.
+#define X360_WIRED_INTERFACE_SUBCLASS      0x5D
+#define X360_WIRED_INTERFACE_PROTOCOL      0x01
+
+/// Largest packet a wired pad sends on its IN pipe.
+#define X360_WIRED_MAX_PACKET              32
+/// Largest command sent to a wired pad's OUT pipe.
+#define X360_WIRED_COMMAND_MAX             8
 
 /// Largest packet the receiver sends on a slot's IN pipe.
 #define X360_WIRELESS_MAX_PACKET           32
@@ -101,6 +111,10 @@ typedef struct X360Event {
 /// malformed or carry nothing of interest.
 bool X360ParseWirelessPacket(const uint8_t *data, size_t length, X360Event *out);
 
+/// Decodes one packet read from a wired controller's IN pipe. Only input
+/// reports produce an event (X360_EVENT_INPUT); LED/rumble status packets are ignored.
+bool X360ParseWiredPacket(const uint8_t *data, size_t length, X360Event *out);
+
 /// Decodes the common 360 input report layout (`00 len buttons… `) found both
 /// inside wireless packets and in wired controller reports.
 bool X360ParseInputReport(const uint8_t *report, size_t length, X360PadState *out);
@@ -140,6 +154,13 @@ size_t X360BuildEnableReportingCommand(uint8_t *out, size_t capacity);
 /// Writes a command asking the receiver to report whether a controller is
 /// present in the slot (answered with a connection status packet).
 size_t X360BuildInquiryCommand(uint8_t *out, size_t capacity);
+
+// MARK: - Host → wired controller
+
+/// Writes a wired "set LED ring" command (3 bytes). Returns bytes written or 0.
+size_t X360BuildWiredLEDCommand(uint8_t pattern, uint8_t *out, size_t capacity);
+/// Writes a wired "set rumble motors" command (8 bytes). Returns bytes written or 0.
+size_t X360BuildWiredRumbleCommand(uint8_t large, uint8_t small, uint8_t *out, size_t capacity);
 
 // MARK: - Virtual HID gamepad
 

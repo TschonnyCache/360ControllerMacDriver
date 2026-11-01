@@ -1,15 +1,15 @@
 //
-//  X360WirelessGamepad.iig
+//  X360Gamepad.iig
 //  X360Driver
 //
-//  A HID gamepad representing one controller connected to the receiver. It
-//  looks exactly like the pads published by the old 360Controller kext
-//  (VID 045E, PID 028E, same report descriptor/format), so existing SDL,
-//  Steam and game mappings keep working.
+//  A HID gamepad representing one controller — either a slot of the wireless
+//  receiver or a wired pad. It looks exactly like the pads published by the
+//  old 360Controller kext (VID 045E, PID 028E, same report descriptor/format),
+//  so existing SDL, Steam and game mappings keep working.
 //
 
-#ifndef X360WirelessGamepad_h
-#define X360WirelessGamepad_h
+#ifndef X360Gamepad_h
+#define X360Gamepad_h
 
 #include <Availability.h>
 #include <DriverKit/IOService.iig>
@@ -17,7 +17,7 @@
 
 struct X360PadState;
 
-class X360WirelessGamepad : public IOUserHIDDevice
+class X360Gamepad : public IOUserHIDDevice
 {
 public:
     virtual bool init() override;
@@ -37,7 +37,7 @@ public:
                                     uint32_t completionTimeout,
                                     OSAction *action) override;
 
-    /// Delivers new controller state to the HID system. Called by the receiver;
+    /// Delivers new controller state to the HID system. Called by the provider;
     /// `timestamp` is the USB completion time (mach absolute time units).
     void PostPadState(const struct X360PadState *state, uint64_t timestamp) LOCALONLY;
 
@@ -45,4 +45,4 @@ public:
     void SetBatteryLevel(uint8_t level) LOCALONLY;
 };
 
-#endif /* X360WirelessGamepad_h */
+#endif /* X360Gamepad_h */

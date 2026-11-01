@@ -8,7 +8,12 @@ swift test                              # 17 protocol unit tests
 swift run x360probe --seconds 30        # press buttons / move sticks / pull triggers
 swift run x360probe --rumble            # short rumble when the pad is detected
 swift run x360probe --raw               # also dump every raw packet
+swift run x360probe --led 10            # rotating ring instead of the player light
+swift run x360probe --power-off         # switches the pad off (tests auto power-off's command)
 ```
+
+With no receiver plugged in, the probe uses a wired Microsoft Xbox 360 controller
+instead, if one is connected.
 
 Expected: `[slot 0] controller connected`, an announcement with serial + battery,
 then one line per input change, e.g.
@@ -65,6 +70,7 @@ Rumble: most SDL games, or the Gamepad tester's vibration button.
 | Symptom | Likely cause / fix |
 | --- | --- |
 | Log: `device Open failed` | Another process holds the receiver exclusively (x360probe, Brave, Logitech G HUB). Quit it, replug. |
+| Controller switches off by itself | Idle power-off after 15 min without input. Change `X360IdlePowerOffMinutes` in `Driver/X360Driver/Info.plist` (0 = never). |
 | Log: `creating gamepad for slot N failed` | HID entitlement mismatch. Try adding `com.apple.developer.driverkit.family.hid.virtual.device` to `X360Driver.entitlements`. |
 | Activation error about location | App isn't in `/Applications` (Route A) or developer mode is off (Route B). |
 | Activation error about signature/entitlements | Profile lacks the DriverKit entitlements → see Route A step 3 or use Route B. |

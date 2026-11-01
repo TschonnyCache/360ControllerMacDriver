@@ -2,30 +2,39 @@
 //  DeviceMonitor.swift
 //  X360DriverManager
 //
-//  Polls the I/O Registry for the receiver and the gamepads the driver publishes.
+//  Polls the I/O Registry for supported USB hardware and whether X360Driver
+//  has attached to it. (Live controller state comes from GamepadMonitor.)
 //
 
 import Foundation
 import IOKit
 import Observation
 
-struct PublishedGamepad: Identifiable, Equatable {
-    let id: UInt64          // Registry entry ID
-    let name: String
-    let serial: String
-    /// 0–255 as reported by the controller, nil until the pad has announced it.
-    let batteryLevel: Int?
-}
-
 @MainActor
 @Observable
 final class DeviceMonitor {
-    private(set) var receiverConnected = false
-    /// True when our driver (rather than nothing or another driver) owns the receiver.
-    private(set) var driverAttached = false
-    private(set) var gamepads: [PublishedGamepad] = []
+    struct Hardware: Identifiable, Equatable {
+        enum Kind { case receiver, wiredController }
+        let id: UInt64          // Registry entry ID
+        let kind: Kind
+        /// True when our driver (rather than nothing or another driver) owns the device.
+        let driverAttached: Bool
+    }
 
-    private static let receiverProductIDs: Set<Int> = [0x0719, 0x0291, 0x02A9]
+    private(set) var hardware: [Hardware] = []
+
+    var receiverConnected: Bool { hardware.contains { $0.kind == .receiver } }
+    var wiredControllerCount: Int { hardware.filter { $0.kind == .wiredController }.count }
+    var driverAttached: Bool { !hardware.isEmpty && hardware.allSatisfy(\.driverAttached) }
+
+    private static let microsoft = 0x045E
+    private static let kinds: [Int: (Hardware.Kind, String)] = [
+        0x0719: (.receiver, "X360WirelessReceiver"),
+        0x0291: (.receiver, "X360WirelessReceiver"),
+        0x02A9: (.receiver, "X360WirelessReceiver"),
+        0x028E: (.wiredController, "X360WiredController"),
+        0x028F: (.wiredController, "X360WiredController"),
+    ]
 
     /// Refreshes every `interval` until the calling task is cancelled (use with `.task`).
     func run(interval: Duration = .seconds(1)) async {
@@ -36,26 +45,20 @@ final class DeviceMonitor {
     }
 
     func refresh() {
-        let receivers = Self.services(matching: IOServiceMatching("IOUSBHostDevice")).filter { service in
-            Self.intProperty(service, "idVendor") == 0x045E
-                && Self.receiverProductIDs.contains(Self.intProperty(service, "idProduct") ?? -1)
-        }
-        receiverConnected = !receivers.isEmpty
-        driverAttached = receivers.contains { Self.hasChild(of: $0, userClass: "X360WirelessReceiver") }
-        receivers.forEach { IOObjectRelease($0) }
-
-        let pads = Self.services(matching: IOServiceMatching("IOHIDDevice"))
-        gamepads = pads.compactMap { service in
-            guard Self.stringProperty(service, "IOUserClass") == "X360WirelessGamepad" else { return nil }
+        var found: [Hardware] = []
+        for service in Self.services(matching: IOServiceMatching("IOUSBHostDevice")) {
+            defer { IOObjectRelease(service) }
+            guard Self.intProperty(service, "idVendor") == Self.microsoft,
+                  let product = Self.intProperty(service, "idProduct"),
+                  let (kind, userClass) = Self.kinds[product] else { continue }
             var entryID: UInt64 = 0
             IORegistryEntryGetRegistryEntryID(service, &entryID)
-            return PublishedGamepad(id: entryID,
-                                    name: Self.stringProperty(service, "Product") ?? "Gamepad",
-                                    serial: Self.stringProperty(service, "SerialNumber") ?? "",
-                                    batteryLevel: Self.intProperty(service, "BatteryLevel"))
+            found.append(Hardware(id: entryID, kind: kind,
+                                  driverAttached: Self.hasChild(of: service, userClass: userClass)))
         }
-        .sorted { $0.serial < $1.serial }
-        pads.forEach { IOObjectRelease($0) }
+        if found != hardware {
+            hardware = found
+        }
     }
 
     // MARK: Registry helpers

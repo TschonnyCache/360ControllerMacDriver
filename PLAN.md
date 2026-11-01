@@ -55,7 +55,21 @@ LED `01 03 n`) → gamepad → receiver writes to OUT pipe.
 | 2 x360probe | ✅ Verified on hardware: 4 slots (EP 0x81/83/85/87 IN, 0x01/03/05/07 OUT), connect, announcement (serial, battery), battery updates, inquiry, writes. ⏳ Stick/button decoding needs a human pressing buttons |
 | 3 Dext | ✅ Builds for DriverKit 27.2 (arm64 + x86_64), no warnings. ⏳ Not loaded yet (signing) |
 | 4 Host app | ✅ Builds, embeds the dext in `Contents/Library/SystemExtensions` |
-| 5 Load & test | ⛔ Blocked on the signing decision below — follow SETUP.md |
+| 5 Load & test | ⛔ Blocked on signing — looking for a Developer Program member (CONTRIBUTOR.md) |
+| 6 Polish | 🟡 Partly done, see below |
+
+### Polish (phase 6) status
+
+| Item | State |
+| --- | --- |
+| Wired Microsoft 360 pads (`045E:028E/028F`) | ✅ Built (`X360WiredController`), Core + tests, probe support. ⏳ Untested on hardware |
+| Idle power-off (15 min, `X360IdlePowerOffMinutes`) | ✅ Built. ⏳ Power-off command can be checked with `x360probe --power-off` |
+| Battery level | ✅ `BatteryLevel` property, shown in the app |
+| App test panel (live input, Rumble, Identify) | ✅ Built on IOHIDManager — the path games use |
+| CI (GitHub Actions: tests + unsigned build) | ✅ `.github/workflows/ci.yml` |
+| Deadzone / inversion settings | ⏸ Deferred: games and Steam/SDL apply their own deadzones; the app→driver channel would be either a user client (needs another Apple-granted entitlement) or vendor HID output reports. Revisit once the driver loads. |
+| Third-party wired pads | ⏸ Each vendor ID needs its own `transport.usb` entitlement from Apple |
+| Global player numbering across receiver + wired pads | ⏸ Each matched device may run in its own dext process; wired pads currently always show player 1 |
 
 Learned on hardware: interrupt OUT transfers must use completion timeout 0
 (a 1 s timeout fails with `kIOReturnBadArgument`).
